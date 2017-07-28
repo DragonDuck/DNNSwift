@@ -57,6 +57,12 @@ class DNNWrapper(object):
             the weights, the index lists for the training / validation /
             testing data, etc.
         """
+
+        if not os.path.isdir(base_dir):
+            raise ValueError(
+                "'basedir' directory must exist and cannot be created by this "
+                "class.")
+
         self._ready_for_training = False
         self._image_handler = None
         self._dnn = None
