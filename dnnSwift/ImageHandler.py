@@ -3,6 +3,7 @@ import h5py
 import numpy as np
 import pickle
 import hashlib
+import os
 
 
 class ImageHandlerException(Exception):
@@ -340,7 +341,8 @@ class ImageHandler(object):
 
     def save_lists(self, filename):
         """
-        Saves the index lists (with index source) for later recovery.
+        Saves the index lists (with index source) for later recovery. Can
+        attempt to create the folder structure that the file is nested into.
         :param filename: Filename under which to save the index list
         :return:
         """
@@ -348,6 +350,10 @@ class ImageHandler(object):
         out_dat = dict()
         out_dat["h5file_hash"] = self._hash
         out_dat["index_list"] = self._indices
+
+        dirname = os.path.dirname(filename)
+        if not os.path.isdir(dirname):
+            os.makedirs(dirname)
 
         with open(filename, "wb") as f:
             pickle.dump(out_dat, f, pickle.HIGHEST_PROTOCOL)

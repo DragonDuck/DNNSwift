@@ -43,7 +43,7 @@ class DNN(object):
         self.__dict__[key] = value
 
     def __init__(self, img_dims, categories, layer_params, learning_rate=1e-3,
-                 weights=None, basedir="."):
+                 weights=None):
         """
         If weights=None then the weights are initialized to random values
         (using a Glorot uniform initialization scheme:
@@ -67,14 +67,7 @@ class DNN(object):
         function
         :param weights: A dictionary of weights with keys corresponding to the
         node names in layer_params
-        :param basedir: The directory in which to store all files. Defaults to
-        the current directory
         """
-
-        # Check that base directory exists
-        if not os.path.isdir(basedir):
-            raise ValueError("'basedir' directory must exist and cannot be "
-                             "created by this class.")
 
         # Check layer_params
         layer_names = [entry["name"] for entry in layer_params]
@@ -83,9 +76,6 @@ class DNN(object):
                              "unique.")
 
         # Set up or declare class members
-        self._basedir = basedir
-        self._training_data_split = os.path.join(
-            self._basedir, "DNN_TrainingDataSplit.pkl")
         self._layer_params = layer_params
         self._graph = tf.Graph()
         # self._accuracy_list = []
@@ -197,7 +187,8 @@ class DNN(object):
         return reg_string
 
     def train_network(self, batch_size, num_epochs, image_handler,
-                      verbose=True, subdir=".", logfile=None, start_epoch=0):
+                      verbose=True, outdir=".", logfile=None, start_epoch=0,
+                      batch_limit=1):
         """
         Trains the network. Currently requires training and validation data.
         :param image_handler: An object of type ImageHandler containing
@@ -207,7 +198,7 @@ class DNN(object):
         :param num_epochs: The number of times to iterate over the entire
         training data set
         :param verbose: 'True' for giving full status
-        :param subdir: The subdirectory of 'self._basedir' in which to save
+        :param outdir: The directory of 'self._basedir' in which to save
         the weights and accuracies after each epoch. Defaults to ".", i.e.
         basedir directly.
         :param logfile: If this file exists, then all output is written there
@@ -218,11 +209,17 @@ class DNN(object):
         conflicts (e.g. if training is being
         continued after an interruption). This is automatically truncated to
         an integer (e.g. 2.9 -> 2)
+        :param batch_limit: A float between 0 and 1 indicating what fraction
+        of the total number of training batches to use in each epoch. As the
+        images are scrambled before each epoch, this effectively creates 
+        entirely new training sets in each epoch if much lower than 1. This 
+        can be useful if the number of training images in the data set is 
+        much larger than it needs to be.
         :return:
         """
-        # Create the subdir
-        if not os.path.isdir(os.path.join(self._basedir, subdir)):
-            os.makedirs(os.path.join(self._basedir, subdir))
+        # Create the outdir
+        if not os.path.isdir(outdir):
+            os.makedirs(outdir)
 
         # Load validation data
         image_handler.scramble_dataset("val")
@@ -236,11 +233,12 @@ class DNN(object):
 
         # Save initial weights
         self.save_weights(os.path.join(
-            self._basedir, subdir,
-            DNN.__WEIGHTS_FILENAME_SCHEME__ % "start"))
+            outdir, DNN.__WEIGHTS_FILENAME_SCHEME__ % "start"))
 
         num_batches = \
             image_handler.get_list_length("train") // batch_size
+
+        num_batches = min(int(num_batches * batch_limit), num_batches)
 
         for epoch_i in range(int(start_epoch), num_epochs):
             start_time = time.time()
@@ -301,8 +299,7 @@ class DNN(object):
                                    labels=img_val["labels"],
                                    image_groups=self._categories)
             val_file = os.path.join(
-                self._basedir, subdir,
-                DNN.__VALIDATION_FILENAME_SCHEME__ % str(epoch_i))
+                outdir, DNN.__VALIDATION_FILENAME_SCHEME__ % str(epoch_i))
             validation.save_results(filename=val_file)
 
             val_acc = validation.get_top_1_acc()
@@ -314,8 +311,7 @@ class DNN(object):
             else:
                 print("Epoch %s: Accuracy: %s" % (epoch_i, val_acc))
             self.save_weights(os.path.join(
-                self._basedir, subdir,
-                DNN.__WEIGHTS_FILENAME_SCHEME__ % str(epoch_i)))
+                outdir, DNN.__WEIGHTS_FILENAME_SCHEME__ % str(epoch_i)))
 
     def run_network(self, input_images, batch_size=1024):
         """
@@ -462,7 +458,7 @@ class DNN(object):
             n.attr["pos"] = "%f,%f)" % (float(x_vals[node]), float(y_vals[node]))
             n.attr["shape"] = "box"
 
-        graph.draw(os.path.join(self._basedir, filename), args="-n2")
+        graph.draw(filename, args="-n2")
 
     def add_input(self, params):
         """

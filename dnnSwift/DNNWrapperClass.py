@@ -20,7 +20,7 @@ class DNNWrapper(object):
     the DNN if parameters change.
     """
 
-    def __init__(self, categories, layout, base_dir):
+    def __init__(self, categories, layout):
         """
         This is an interface class that serves only to simplify the calls to
         this package. Most of the functionality lies in the DNN and
@@ -53,15 +53,7 @@ class DNNWrapper(object):
         :param categories: A dictionary of image categories with their
             corresponding annotation values. All categories present in
             the dataset must be indicated here
-        :param base_dir: The directory into which output should be saved (e.g.
-            the weights, the index lists for the training / validation /
-            testing data, etc.
         """
-
-        if not os.path.isdir(base_dir):
-            raise ValueError(
-                "'basedir' directory must exist and cannot be created by this "
-                "class.")
 
         self._ready_for_training = False
         self._image_handler = None
@@ -69,7 +61,6 @@ class DNNWrapper(object):
 
         # Params needed by multiple functions
         self._categories = categories
-        self._base_dir = base_dir
         self._layout = layout
         pass
 
@@ -142,19 +133,14 @@ class DNNWrapper(object):
 
         # Save the resulting index lists
         if outfile is not None:
-            if not os.path.isfile(os.path.join(self._base_dir, outfile)):
-                self._image_handler.save_lists(filename=outfile)
-            else:
-                print(
-                    "WARNING: '%s' already exists, index lists not being "
-                    "saved" % os.path.join(self._base_dir, outfile))
+            self._image_handler.save_lists(filename=outfile)
 
         return None
 
     def train_dnn(
             self, num_epochs, batch_size=1, weights=None,
             verbose=True, weights_dir=".", logfile=None, learning_rate=1e-3,
-            start_epoch=0):
+            start_epoch=0, batch_limit=1):
         """
         Trains the DNN
 
@@ -190,6 +176,12 @@ class DNNWrapper(object):
             automatically read in the previous weight set. To properly continue
             training, you must load the correct weights file manually and pass
             the contents to the 'weights' parameter.
+        :param batch_limit: A float between 0 and 1 indicating what fraction
+            of the total number of training batches to use in each epoch. As the
+            images are scrambled before each epoch, this effectively creates 
+            entirely new training sets in each epoch if much lower than 1. This 
+            can be useful if the number of training images in the data set is 
+            much larger than it needs to be.
         :return:
         """
 
@@ -204,13 +196,13 @@ class DNNWrapper(object):
         self._dnn = DNN.DNN(
             img_dims=image_dims, categories=categories,
             layer_params=self._layout, learning_rate=learning_rate,
-            weights=weights, basedir=self._base_dir)
+            weights=weights)
 
         # Train DNN
         self._dnn.train_network(
             batch_size=batch_size, image_handler=self._image_handler,
-            num_epochs=num_epochs, verbose=verbose, subdir=weights_dir,
-            logfile=logfile, start_epoch=start_epoch)
+            num_epochs=num_epochs, verbose=verbose, outdir=weights_dir,
+            logfile=logfile, start_epoch=start_epoch, batch_limit=batch_limit)
 
         return None
 
@@ -275,8 +267,7 @@ class DNNWrapper(object):
         if make_new_dnn:
             self._dnn = DNN.DNN(
                 img_dims=image_dims, categories=self._categories,
-                layer_params=self._layout, basedir=self._base_dir,
-                weights=weights)
+                layer_params=self._layout, weights=weights)
 
         # Apply network to images
         output = self._dnn.run_network(input_images=np.array(images))
