@@ -1,1 +1,1 @@
-from DNNWrapperClass import *
+from .DNNWrapperClass import *

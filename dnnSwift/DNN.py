@@ -12,7 +12,7 @@ import sys
 import numpy as np
 import pickle
 import pygraphviz as pgv
-from Validator import Validator
+from .Validator import Validator
 
 
 class DNN(object):

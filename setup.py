@@ -1,8 +1,9 @@
-from distutils.core import setup
+# from distutils.core import setup
+from setuptools import setup
 
 setup(
     name='dnnSwift',
-    version='0.3',
+    version='0.3.1',
     packages=['dnnSwift'],
     description="Quick Convolutional Neural Network Implementation",
     url="https://github.com/DragonDuck/DNNSwift",

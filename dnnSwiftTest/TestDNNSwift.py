@@ -1,4 +1,4 @@
-# import dnnSwift
+import dnnSwift
 import numpy as np
 import os
 import pickle
@@ -16,7 +16,7 @@ def test_from_scratch():
     shutil.copy2(src=os.path.join(base_dir, hdf5_fn), dst=test_hdf5_fn)
 
     my_dnn = dnnSwift.DNNWrapper(
-        categories=categories, layout=dnn_layout, base_dir=test_dir)
+        categories=categories, layout=dnn_layout)
     my_dnn.initialize_training_data(
         filename=test_hdf5_fn, outfile=test_index_fn)
     my_dnn.train_dnn(
@@ -35,7 +35,7 @@ def test_continue_training():
     shutil.copy2(src=os.path.join(base_dir, hdf5_fn), dst=test_hdf5_fn)
 
     my_dnn = dnnSwift.DNNWrapper(
-        categories=categories, layout=dnn_layout, base_dir=test_dir)
+        categories=categories, layout=dnn_layout)
     my_dnn.initialize_training_data(
         filename=test_hdf5_fn, outfile=test_index_fn)
     my_dnn.train_dnn(
@@ -50,7 +50,7 @@ def test_continue_training():
     # Continue with reset
     del my_dnn
     my_dnn = dnnSwift.DNNWrapper(
-        categories=categories, layout=dnn_layout, base_dir=test_dir)
+        categories=categories, layout=dnn_layout)
     my_dnn.initialize_training_data(
         filename=test_hdf5_fn, outfile=test_index_fn)
     my_dnn.train_dnn(
@@ -73,7 +73,7 @@ def test_apply_dnn():
 
     # Train on dataset
     my_dnn = dnnSwift.DNNWrapper(
-        categories=categories, layout=dnn_layout, base_dir=test_dir)
+        categories=categories, layout=dnn_layout)
     my_dnn.initialize_training_data(
         filename=test_hdf5_fn, outfile=test_index_fn)
     my_dnn.train_dnn(

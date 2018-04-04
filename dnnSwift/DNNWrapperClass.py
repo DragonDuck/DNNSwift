@@ -1,9 +1,6 @@
-import ImageHandler
-import DNN
-import os
+from .ImageHandler import ImageHandler
+from .DNN import DNN
 import numpy as np
-
-# __all__ = ["DNNSwift", "DNNSwiftException"]
 
 
 class DNNSwiftException(Exception):
@@ -125,7 +122,7 @@ class DNNWrapper(object):
         """
 
         # Initialize the image handler
-        self._image_handler = ImageHandler.ImageHandler(
+        self._image_handler = ImageHandler(
             filename=filename, categories=self._categories,
             data_split=data_split, index_dict=index_dict,
             image_key=image_key, label_key=label_key)
@@ -193,7 +190,7 @@ class DNNWrapper(object):
         categories = self._categories
 
         # Create DNN object
-        self._dnn = DNN.DNN(
+        self._dnn = DNN(
             img_dims=image_dims, categories=categories,
             layer_params=self._layout, learning_rate=learning_rate,
             weights=weights)
@@ -265,7 +262,7 @@ class DNNWrapper(object):
         print("Reinitializing DNN: %s" % str(make_new_dnn))
 
         if make_new_dnn:
-            self._dnn = DNN.DNN(
+            self._dnn = DNN(
                 img_dims=image_dims, categories=self._categories,
                 layer_params=self._layout, weights=weights)
 
