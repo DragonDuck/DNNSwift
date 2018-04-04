@@ -837,7 +837,7 @@ class DNN(object):
         self._optimizer = optimizer_func(
             learning_rate=self._learning_rate).minimize(
             loss=cost_function,
-            var_list=self._variables.values(),
+            var_list=list(self._variables.values()),
             name=layer_name)
         self._cost_function_set = True
         return True

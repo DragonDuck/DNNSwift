@@ -1,4 +1,4 @@
-import dnnSwift
+# import dnnSwift
 import numpy as np
 import os
 import pickle
@@ -105,12 +105,12 @@ def test_apply_dnn():
     acc_with_reinit = np.mean(np.equal(output_cat, labels_cat))
     print("Accuracy: %s" % str(acc_with_reinit))
 
+
 if __name__ == "__main__":
     base_dir = "."
-    # categories = {"background": 0, "edges": 1, "foreground": 2}
-    categories = {i: i for i in range(10)}
-    hdf5_fn = "TestData.h5"
-    index_fn = "TestData_indexSplit.pkl"
+    categories = {0: 0, 5: 1, 7: 2}
+    hdf5_fn = "MNISTDemo.h5"
+    index_fn = "MNISTDemo_indexSplit.pkl"
 
     # Load layout
     with open(os.path.join(base_dir, "dnn_layout"), "r") as layout_file:

@@ -137,7 +137,7 @@ class ImageHandler(object):
                 "('%s') must match")
 
         # Make sure all labels in the dataset are represented in 'categories'
-        if np.sum(np.invert(np.in1d(all_labels, categories.keys()))) != 0:
+        if np.sum(np.invert(np.in1d(all_labels, list(categories.keys())))) != 0:
             raise ValueError(
                 "Some labels in the dataset are not represented in "
                 "'categories'. This class is currently unable to deal with "
@@ -212,7 +212,7 @@ class ImageHandler(object):
         """
         if list_name not in self._indices.keys():
             raise ValueError(
-                "'list_name' must be one of " + str(self._indices.keys()))
+                "'list_name' must be one of " + str(list(self._indices.keys())))
 
         if len(self._indices[list_name]) == 0:
             raise ValueError("Index list '%s' is empty" % list_name)
@@ -291,7 +291,7 @@ class ImageHandler(object):
 
         if list_name not in self._indices.keys():
             raise ValueError(
-                "'list_name' must be one of " + str(self._indices.keys()))
+                "'list_name' must be one of " + str(list(self._indices.keys())))
 
         if len(self._indices[list_name]) == 0:
             raise ValueError("Dataset '%s' is empty" % list_name)

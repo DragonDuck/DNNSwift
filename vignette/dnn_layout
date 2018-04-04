@@ -1,0 +1,58 @@
+{
+    "name": "data",
+    "type": "input"
+},
+{
+    "name": "conv1", 
+    "type": "conv", 
+    "n_kernels": 32, 
+    "size": (3, 3), 
+    "stride": (1, 1), 
+    "padding" : "VALID",
+    "input": "data"
+},
+{
+    "name": "conv2",
+    "type": "conv",
+    "n_kernels": 32,
+    "size": (3, 3),
+    "stride": (1, 1),
+    "padding" : "VALID",
+    "input": "conv1"
+},
+{
+    "name": "maxpool1",
+    "type": "maxpool",
+    "size": (3, 3),
+    "stride": (2, 2),
+    "padding" : "VALID",
+    "input": "conv2"
+},
+{
+    "name": "conv3",
+    "type": "conv",
+    "n_kernels": 64,
+    "size": (3, 3),
+    "stride": (1, 1),
+    "padding" : "VALID",
+    "input": "maxpool1"
+},
+{
+    "name": "conv4",
+    "type": "conv",
+    "n_kernels": 64,
+    "size": (3, 3),
+    "stride": (1, 1),
+    "padding" : "VALID",
+    "input": "conv3"
+},
+{
+    "name": "maxpool2",
+    "type": "maxpool",
+    "size": (3, 3),
+    "stride": (2, 2),
+    "padding" : "VALID",
+    "input": "conv4"
+},
+{"name": "fc1", "type": "fc", "input": "maxpool2"},
+{"name": "CrossEntropy", "type": "cross_entropy", "input": "fc1"}
